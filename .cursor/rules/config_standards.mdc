@@ -1,0 +1,50 @@
+---
+description: Enforces guidelines for managing environment configurations and custom settings in a Rails project.
+globs:
+  - "config/environments/**/*.rb"
+  - "config/*.rb"
+---
+
+# Configurations
+
+<rule>
+name: config_standard
+description: Ensures that environment-specific configurations and custom settings follow Rails best practices for maintainability and security.
+
+filters:
+  - type: path
+    pattern: "^config/(environments/.*\\.rb|[^/]+\\.rb)$"
+    # Applies to environment files and main configuration files in the config directory
+
+actions:
+  - type: suggest
+    message: |
+      Configuration files should:
+      1. Separate environment-specific settings clearly.
+      2. Avoid hardcoding sensitive information; use environment variables.
+      3. Be well-commented to explain configuration choices.
+      4. Follow Rails defaults unless explicitly overridden.
+      5. Maintain consistency across development, test, and production.
+
+examples:
+  - input: |
+      # Bad example: Hardcoded credentials in configuration.
+      Rails.application.configure do
+        config.secret_key_base = "hardcoded_secret"
+      end
+    output: "Use environment variables to manage sensitive configuration data."
+  - input: |
+      # Good example.
+      Rails.application.configure do
+        config.secret_key_base = ENV['SECRET_KEY_BASE']
+        config.cache_classes = false
+      end
+    output: "Configuration uses environment variables and maintains clear environment separation."
+
+metadata:
+  priority: high
+  version: 1.0
+  related_rules:
+    - rails_project_standard
+  responsibility: "Ensure environment configurations are secure and maintainable"
+</rule>

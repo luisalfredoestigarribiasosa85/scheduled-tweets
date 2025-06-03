@@ -1,0 +1,287 @@
+---
+trigger: model_decision
+description: Standards for ensuring web accessibility following WCAG guidelines and best practices
+globs: 
+---
+
+# Accessibility Standards
+
+<rule>
+name: accessibility_standards
+description: Comprehensive standards for implementing accessible web interfaces following WCAG guidelines and best practices, including proper internationalization
+
+filters:
+  - type: file_extension
+    pattern: "\\.erb$|\\.rb$|\\.js$|\\.yml$"
+  - type: content
+    pattern: "class=|className=|aria-|role=|<button|<a |<input|<form|<select|t\\(\"|t\\."
+
+actions:
+  - type: suggest
+    message: |
+      When implementing accessible interfaces:
+
+      1. Semantic HTML Structure:
+         - Use proper heading hierarchy (h1 through h6)
+         - Use semantic elements (nav, main, article, section, aside)
+         - Implement proper landmark regions
+         ```erb
+         <nav role="navigation" aria-label="<%= t('.main_navigation') %>">
+         <main role="main">
+         <aside role="complementary">
+         ```
+
+      2. ARIA Attributes and Roles:
+         - Include descriptive aria-labels with translations
+         - Use appropriate ARIA roles
+         - Implement aria-expanded for toggleable content
+         - Add aria-current for current page/item
+         ```erb
+         <%= link_to t(".dashboard"),
+             dashboard_path,
+             aria: {
+               label: t(".dashboard_aria_label"),
+               current: current_page?(dashboard_path) ? "page" : nil
+             }
+         %>
+
+         <%# en.yml %>
+         en:
+           dashboard: "Dashboard"
+           dashboard_aria_label: "Go to dashboard"
+
+         <%# es.yml %>
+         es:
+           dashboard: "Panel"
+           dashboard_aria_label: "Ir al panel"
+         ```
+
+      3. Form Accessibility:
+         - Associate labels with form controls
+         - Provide error messages with aria-invalid
+         - Use fieldset and legend for grouped controls
+         - Translate all form labels and error messages
+         ```erb
+         <%= form_with(model: @user) do |form| %>
+           <div class="field">
+             <%= form.label :email, t(".email_label"), class: "sr-only" %>
+             <%= form.email_field :email,
+                 aria: {
+                   label: t(".email_aria_label"),
+                   invalid: @user.errors[:email].any?,
+                   describedby: "email-error"
+                 }
+             %>
+             <% if @user.errors[:email].any? %>
+               <p id="email-error" class="error" role="alert">
+                 <%= t(".email_error", message: @user.errors[:email].first) %>
+               </p>
+             <% end %>
+           </div>
+         <% end %>
+
+         <%# en.yml %>
+         en:
+           email_label: "Email"
+           email_aria_label: "Enter your email address"
+           email_error: "Error: %{message}"
+
+         <%# es.yml %>
+         es:
+           email_label: "Correo electrónico"
+           email_aria_label: "Ingrese su correo electrónico"
+           email_error: "Error: %{message}"
+         ```
+
+      4. Screen Reader Support:
+         - Add descriptive alt text with translations
+         - Use sr-only for visual-only content
+         - Implement proper ARIA live regions
+         ```erb
+         <%= image_tag "logo.png",
+             alt: t(".logo_alt"),
+             aria: { hidden: true }
+         %>
+         <span class="sr-only"><%= t(".company_name") %></span>
+
+         <div aria-live="polite" class="notifications">
+           <%= render "shared/loading_indicator",
+               aria: { label: t(".loading_aria_label") } %>
+         </div>
+
+         <%# en.yml %>
+         en:
+           logo_alt: "Company Logo"
+           company_name: "Acme Corp"
+           loading_aria_label: "Content is loading"
+
+         <%# es.yml %>
+         es:
+           logo_alt: "Logo de la empresa"
+           company_name: "Acme Corp"
+           loading_aria_label: "El contenido está cargando"
+         ```
+
+      5. Dynamic Content:
+         - Announce dynamic content changes in all languages
+         - Manage focus when content updates
+         - Provide loading states with translations
+         ```erb
+         <div role="status" aria-live="polite">
+           <% if loading? %>
+             <span class="sr-only"><%= t(".loading_message") %></span>
+             <%= render "shared/spinner" %>
+           <% end %>
+         </div>
+
+         <%# en.yml %>
+         en:
+           loading_message: "Please wait while content loads"
+           content_updated: "Content has been updated"
+
+         <%# es.yml %>
+         es:
+           loading_message: "Por favor espere mientras se carga el contenido"
+           content_updated: "El contenido ha sido actualizado"
+         ```
+
+      6. Translation Synchronization:
+         - Ensure all accessibility-related translations exist in both en.yml and es.yml
+         - Keep translation keys consistent across files
+         - Provide meaningful translations for aria-labels and screen reader text
+         ```yaml
+         # Example structure for accessibility translations
+         en:
+           accessibility:
+             navigation:
+               main_nav: "Main navigation"
+               skip_link: "Skip to main content"
+             forms:
+               required: "Required field"
+               error_summary: "Please correct the following errors"
+             aria:
+               menu_expanded: "Menu expanded"
+               menu_collapsed: "Menu collapsed"
+             screen_readers:
+               opens_in_new_tab: "Opens in new tab"
+               external_link: "External link"
+
+         es:
+           accessibility:
+             navigation:
+               main_nav: "Navegación principal"
+               skip_link: "Saltar al contenido principal"
+             forms:
+               required: "Campo requerido"
+               error_summary: "Por favor corrija los siguientes errores"
+             aria:
+               menu_expanded: "Menú expandido"
+               menu_collapsed: "Menú contraído"
+             screen_readers:
+               opens_in_new_tab: "Se abre en una nueva pestaña"
+               external_link: "Enlace externo"
+         ```
+
+      7. Translation Maintenance:
+         - Review both locale files when adding new accessibility features
+         - Keep translations synchronized between languages
+         - Use meaningful keys that describe the content's purpose
+         - Group related translations under common namespaces
+         ```yaml
+         # Good translation structure
+         en:
+           shared:
+             accessibility:
+               navigation: {}
+               forms: {}
+               aria: {}
+           components:
+             accessibility:
+               modal: {}
+               dropdown: {}
+               tabs: {}
+           views:
+             accessibility:
+               forms: {}
+               errors: {}
+         ```
+
+examples:
+  - input: |
+      # Bad - Missing translations and inconsistent keys
+      en:
+        form:
+          submit: "Submit"
+          error: "Error occurred"
+      es:
+        formulario:
+          enviar: "Enviar"
+          # Missing error translation
+
+      # Good - Consistent keys and complete translations
+      en:
+        forms:
+          submit: "Submit"
+          error: "Error occurred"
+          aria_labels:
+            submit_button: "Submit form"
+      es:
+        forms:
+          submit: "Enviar"
+          error: "Se produjo un error"
+          aria_labels:
+            submit_button: "Enviar formulario"
+    output: "Proper translation structure with consistent keys and complete translations"
+
+  - input: |
+      # Bad - Hardcoded accessibility text
+      <button aria-label="Close modal">
+        <span class="sr-only">Close</span>
+      </button>
+
+      # Good - Translated accessibility text
+      <button aria-label="<%= t('.modal.close_aria_label') %>">
+        <span class="sr-only"><%= t('.modal.close_text') %></span>
+      </button>
+
+      # en.yml
+      en:
+        modal:
+          close_aria_label: "Close modal window"
+          close_text: "Close"
+
+      # es.yml
+      es:
+        modal:
+          close_aria_label: "Cerrar ventana modal"
+          close_text: "Cerrar"
+    output: "Proper implementation of translated accessibility text"
+
+metadata:
+  priority: low
+  version: 1.0
+  related_rules:
+    - ui_styling
+    - ux_standards
+  responsibility: "Ensuring web accessibility compliance and proper internationalization"
+  standard_patterns:
+    aria:
+      - aria-label
+      - aria-describedby
+      - aria-expanded
+      - aria-current
+      - aria-live
+    roles:
+      - navigation
+      - main
+      - complementary
+      - alert
+      - status
+    translations:
+      - accessibility
+      - aria_labels
+      - screen_readers
+    classes:
+      - sr-only
+      - focus-ring
+</rule>

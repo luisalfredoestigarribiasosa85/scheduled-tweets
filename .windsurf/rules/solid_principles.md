@@ -1,0 +1,191 @@
+---
+trigger: model_decision
+description: Comprehensive implementation standards for SOLID principles and object-oriented design patterns in Ruby on Rails
+globs: "**/*.rb"
+---
+# SOLID Principles Implementation Standards
+
+<rule>
+name: solid_principles
+description: |
+  Comprehensive standards for implementing SOLID principles in Ruby/Rails applications using modern Rails conventions.
+  These guidelines ensure maintainable, testable, and scalable code architecture.
+
+  SOLID Principles:
+  - Single Responsibility Principle (SRP): A class should have only one reason to change
+  - Open/Closed Principle (OCP): Open for extension, closed for modification
+  - Liskov Substitution Principle (LSP): Subtypes must be substitutable for their base types
+  - Interface Segregation Principle (ISP): Clients shouldn't depend on methods they don't use
+  - Dependency Inversion Principle (DIP): Depend on abstractions, not concretions
+
+  Implementation Guidelines:
+  1. Single Responsibility Principle (SRP):
+     - Each class/module should have one clear purpose
+     - Extract complex behavior into separate classes
+     - Keep methods focused and small
+     - Use concerns for shared behavior
+     - Avoid "god" objects that do too much
+
+  2. Open/Closed Principle (OCP):
+     - Never modify existing code to add new functionality
+     - Create new classes/modules to extend behavior
+     - Use inheritance and composition for extension
+     - Design for extension from the start
+     - Use the Template Method pattern for extension points
+
+  3. Liskov Substitution Principle (LSP):
+     - Subclasses must honor their parent's contract
+     - Don't violate the parent class's assumptions
+     - Maintain behavioral compatibility
+     - Use composition when inheritance might violate LSP
+     - Test subclasses against parent class expectations
+
+  4. Interface Segregation Principle (ISP):
+     - Keep interfaces small and focused
+     - Split large interfaces into smaller ones
+     - Clients should only depend on methods they use
+     - Use role-based modules for shared behavior
+     - Avoid forcing clients to implement unused methods
+
+  5. Dependency Inversion Principle (DIP):
+     - Depend on abstractions, not concrete implementations
+     - Use dependency injection
+     - Program to interfaces, not implementations
+     - Use service objects for complex operations
+     - Make dependencies explicit in constructors
+
+  Common Patterns:
+  1. Service Objects:
+     ```ruby
+     # Bad - Business logic in model
+     class Order < ApplicationRecord
+       def process
+         # Complex processing logic here
+       end
+     end
+
+     # Good - Separate service object
+     class Order < ApplicationRecord
+       def process
+         OrderProcessor.new(self).process
+       end
+     end
+
+     class OrderProcessor
+       def initialize(order)
+         @order = order
+       end
+
+       def process
+         # Complex processing logic here
+       end
+     end
+     ```
+
+  2. Composition over Inheritance:
+     ```ruby
+     # Bad - Deep inheritance hierarchy
+     class Animal
+       def move; end
+     end
+
+     class Bird < Animal
+       def fly; end
+     end
+
+     class Penguin < Bird
+       def fly
+         raise "Can't fly!"
+       end
+     end
+
+     # Good - Using composition
+     module Flying
+       def fly
+         # Flying implementation
+       end
+     end
+
+     class Bird < Animal
+       include Flying
+     end
+
+     class Penguin < Animal
+       # No flying capability
+     end
+     ```
+
+  3. Dependency Injection:
+     ```ruby
+     # Bad - Direct dependency
+     class NotificationService
+       def initialize
+         @email_client = GmailClient.new
+       end
+     end
+
+     # Good - Dependency injection
+     class NotificationService
+       def initialize(email_client: EmailClient.new)
+         @email_client = email_client
+       end
+     end
+     ```
+
+  4. Interface Segregation:
+     ```ruby
+     # Bad - Large interface
+     module Reportable
+       def generate_pdf; end
+       def generate_csv; end
+       def email_report; end
+       def archive_report; end
+     end
+
+     # Good - Segregated interfaces
+     module PdfGeneratable
+       def generate_pdf; end
+     end
+
+     module Emailable
+       def email_report; end
+     end
+     ```
+
+  Testing Guidelines:
+  1. Test each class in isolation
+  2. Use dependency injection for test doubles
+  3. Test behavior, not implementation
+  4. Follow the Arrange-Act-Assert pattern
+  5. Use shared examples for common behaviors
+
+  Error Handling:
+  1. Use custom exceptions for domain errors
+  2. Handle errors at the appropriate level
+  3. Log errors with context
+  4. Use transaction blocks for atomic operations
+  5. Provide meaningful error messages
+
+metadata:
+  priority: high
+  version: 1.1
+  related_rules:
+    - code_organization
+    - testing_standards
+    - error_handling
+  responsibility: "Object-oriented design principles enforcement using modern Rails patterns"
+  standard_patterns:
+    principles:
+      - single_responsibility
+      - open_closed
+      - liskov_substitution
+      - interface_segregation
+      - dependency_inversion
+    practices:
+      - dependency_injection
+      - error_handling
+      - testing
+      - transactions
+      - logging
+      - background_jobs
+</rule>

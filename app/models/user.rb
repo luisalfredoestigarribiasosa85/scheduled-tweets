@@ -4,6 +4,7 @@
 # password_confirmation:string virtual
 
 class User < ApplicationRecord
+  has_many :twitter_accounts
   has_secure_password
 
   SPAM_DOMAINS = [
@@ -21,6 +22,7 @@ class User < ApplicationRecord
 
   validates :email, presence: true, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: "must be a valid email address" }
   validates :password, presence: true
+  validates :password_confirmation, presence: true
 
   validate :email_not_from_spam_domain
 

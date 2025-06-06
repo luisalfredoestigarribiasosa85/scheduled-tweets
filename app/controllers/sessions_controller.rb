@@ -12,12 +12,12 @@ class SessionsController < ApplicationController
         twitter_data = session.delete(:twitter_oauth)
 
         # Associate the Twitter account with the user
-        twitter_account = user.twitter_accounts.find_or_initialize_by(username: twitter_data['username'])
+        twitter_account = user.twitter_accounts.find_or_initialize_by(username: twitter_data["username"])
         twitter_account.update!(
-          name: twitter_data['name'],
-          image: twitter_data['image'],
-          token: twitter_data['token'],
-          secret: twitter_data['secret']
+          name: twitter_data["name"],
+          image: twitter_data["image"],
+          token: twitter_data["token"],
+          secret: twitter_data["secret"]
         )
 
         redirect_to root_path, notice: "Logged in and connected to Twitter successfully!"
